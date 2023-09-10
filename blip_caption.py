@@ -3,7 +3,7 @@ import requests
 import torch
 from torchvision import transforms
 from torchvision.transforms.functional import InterpolationMode
-from models.blip_vqa import blip_vqa
+from models.blip import blip_decoder
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
@@ -24,17 +24,18 @@ def load_demo_image(image_size, device):
     image = transform(raw_image).unsqueeze(0).to(device)
     return image
 
-image_size = 480
+image_size = 384
 image = load_demo_image(image_size=image_size, device=device)
 
-model_url = 'https://storage.googleapis.com/sfr-vision-language-research/BLIP/models/model_base_vqa_capfilt_large.pth'
+model_url = 'https://storage.googleapis.com/sfr-vision-language-research/BLIP/models/model_base_capfilt_large.pth'
 
-model = blip_vqa(pretrained=model_url, image_size=image_size, vit='base')
+model = blip_decoder(pretrained=model_url, image_size=image_size, vit='base')
 model.eval()
 model = model.to(device)
 
-question = 'What are 4 objects on the table?'
-
 with torch.no_grad():
-    answer = model(image, question, train=False, inference='generate')
-    print('answer: ' + answer[0])
+    # beam search
+    caption = model.generate(image, sample=False, num_beams=3, max_length=20, min_length=5)
+    # nucleus sampling
+    # caption = model.generate(image, sample=True, top_p=0.9, max_length=20, min_length=5)
+    print('caption: ' + caption[0])
