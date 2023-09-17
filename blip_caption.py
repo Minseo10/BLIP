@@ -11,8 +11,8 @@ device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 def load_demo_image(image_size, device):
     #img_url = 'https://storage.googleapis.com/sfr-vision-language-research/BLIP/demo.jpg'
     #raw_image = Image.open(requests.get(img_url, stream=True).raw).convert('RGB')
-    raw_image = Image.open('./images/rt2_pumpkin.png').convert('RGB')
-
+    raw_image = Image.open('./images/spam_2.jpg').convert('RGB')
+    # raw_image.show()
     w, h = raw_image.size
     #display(raw_image.resize((w // 5, h // 5)))
 
@@ -35,7 +35,7 @@ model = model.to(device)
 
 with torch.no_grad():
     # beam search
-    caption = model.generate(image, sample=False, num_beams=3, max_length=20, min_length=5)
+    # caption = model.generate(image, sample=False, num_beams=3, max_length=20, min_length=5)
     # nucleus sampling
-    # caption = model.generate(image, sample=True, top_p=0.9, max_length=20, min_length=5)
+    caption = model.generate(image, sample=True, top_p=0.9, max_length=50, min_length=10)
     print('caption: ' + caption[0])
